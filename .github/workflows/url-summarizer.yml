@@ -1,0 +1,41 @@
+name: URL Summarizer
+
+on:
+  issues:
+    types: [opened, edited]
+  issue_comment:
+    types: [created, edited]
+
+jobs:
+  summarize:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          claude_args: '--allowedTools WebFetch,Bash(gh:*),Bash(curl:*)'
+          prompt: |
+            以下のテキストにURLが含まれているか確認してください。
+
+            イベント: ${{ github.event_name }}
+            Issue番号: ${{ github.event.issue.number }}
+            テキスト: ${{ github.event_name == 'issues' && github.event.issue.body || github.event.comment.body }}
+
+            URLが含まれている場合:
+            1. 各URLにアクセスして内容を取得する
+            2. 日本語で要約を作成する（100〜200文字程度）
+            3. 以下の形式で issue #${{ github.event.issue.number }} にコメントを投稿する
+               ### URL要約
+               **{URL}**
+               {要約内容}
+
+            URLが含まれていない場合、またはすでに「### URL要約」コメントが存在する場合は何もしないでください。
