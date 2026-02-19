@@ -28,14 +28,13 @@ jobs:
 
             イベント: ${{ github.event_name }}
             Issue番号: ${{ github.event.issue.number }}
-            テキスト: ${{ github.event_name == 'issues' && github.event.issue.body || github.event.comment.body }}
+            ${{ github.event_name == 'issues' && format('Issue本文: {0}', github.event.issue.body) || format('コメントID: {0}\nコメント本文: {1}', github.event.comment.id, github.event.comment.body) }}
 
             URLが含まれている場合:
             1. 各URLにアクセスして内容を取得する
             2. 日本語で要約を作成する（100〜200文字程度）
-            3. 以下の形式で issue #${{ github.event.issue.number }} にコメントを投稿する
-               ### URL要約
-               **{URL}**
-               {要約内容}
+            3. 元のテキストの末尾に要約を追記して編集する
+               - issueの場合: gh issue edit ${{ github.event.issue.number }} --body "{元の本文}\n\n---\n### URL要約\n**{URL}**\n{要約}"
+               - コメントの場合: gh api repos/${{ github.repository }}/issues/comments/{コメントID} --method PATCH --field body="{元のコメント本文}\n\n---\n### URL要約\n**{URL}**\n{要約}"
 
-            URLが含まれていない場合、またはすでに「### URL要約」コメントが存在する場合は何もしないでください。
+            URLが含まれていない場合、またはすでに「### URL要約」が含まれている場合は何もしないでください。
