@@ -32,7 +32,7 @@ jobs:
 
             URLが含まれている場合:
             1. 各URLにアクセスして内容を取得する
-            2. 日本語で要約を作成する（100〜200文字程度）
+            2. 日本語で要約を作成する（300〜500文字程度）。記事の主なポイントや結論を含めること
             3. 元のテキストの末尾に要約を追記して編集する
                - issueの場合: gh issue edit ${{ github.event.issue.number }} --body "{元の本文}\n\n---\n### URL要約\n**{URL}**\n{要約}"
                - コメントの場合: gh api repos/${{ github.repository }}/issues/comments/{コメントID} --method PATCH --field body="{元のコメント本文}\n\n---\n### URL要約\n**{URL}**\n{要約}"
